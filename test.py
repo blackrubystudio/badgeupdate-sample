@@ -140,37 +140,59 @@ def test():
     #     print('호')
 
     tuser_aggr = getdb.tuserget.get()
-    badge_ids = []
-
+    #tuser_aggr = tuser_aggr[0]
+    
     for i in tuser_aggr:
         #print(i['_id'], i['count'])
         alluser = getdb.alluserget.get(i['_id'])
         start = 0
         for j in alluser:
             if start == 0:
+                print(j['_id'])
                 #최상위 _id 만 살려놈
                 mainid = j['_id']
             else:
+                print(j['_id'])
                 #uid, token, fcmtoken "" 값 채워넣기 
-                getdb.alluserget.set(j['_id'], alluser[0]['_id'])
-                alluser[0]['badge_ids'] = alluser[0]['badge_ids'] + j['badge_ids']
-                alluser[0]['likes']['schedule_ids'] = alluser[0]['likes']['schedule_ids'] + j['likes']['schedule_ids']
-                alluser[0]['likes']['feed_ids'] = alluser[0]['likes']['feed_ids'] + j['likes']['feed_ids']
-                alluser[0]['likes']['post_ids'] = alluser[0]['likes']['post_ids'] + j['likes']['post_ids']
-                alluser[0]['likes']['comment_ids'] = alluser[0]['likes']['comment_ids'] + j['likes']['comment_ids']
-                alluser[0]['likes']['cocomment_ids'] = alluser[0]['likes']['cocomment_ids'] + j['likes']['cocomment_ids']
-                alluser[0]['following'] = alluser[0]['following'] + j['following']
-                if alluser[0]['img'] == "https://d2bf187k2967hr.cloudfront.net/static_files/profile/profile_image.png":
-                    alluser[0]['img'] = j['img']
-                if alluser[0]['nickname'] == "":
-                    alluser[0]['nickname'] = j['nickname']
-                if alluser[0]['Status_message'] == "":
-                    alluser[0]['Status_message'] = j['Status_message']
+                #getdb.alluserget.set(j['_id'], alluser[0]['_id'])
+                if len(j['badge_ids']) != 0:
+                    alluser[0]['badge_ids'] = alluser[0]['badge_ids'] + j['badge_ids']
+                if len(j['likes']['schedule_ids']) != 0:
+                    alluser[0]['likes']['schedule_ids'] = alluser[0]['likes']['schedule_ids'] + j['likes']['schedule_ids']
+                if len(j['likes']['feed_ids']) != 0:
+                    alluser[0]['likes']['feed_ids'] = alluser[0]['likes']['feed_ids'] + j['likes']['feed_ids']
+                if len(j['likes']['post_ids']) != 0:
+                    alluser[0]['likes']['post_ids'] = alluser[0]['likes']['post_ids'] + j['likes']['post_ids']
+                if len(j['likes']['comment_ids']) != 0:
+                    alluser[0]['likes']['comment_ids'] = alluser[0]['likes']['comment_ids'] + j['likes']['comment_ids']
+                if len(j['likes']['cocomment_ids']) != 0:
+                    alluser[0]['likes']['cocomment_ids'] = alluser[0]['likes']['cocomment_ids'] + j['likes']['cocomment_ids']
+                if hasattr(j, 'following'):
+                    if len(j['following']) != 0:
+                        alluser[0]['following'] = alluser[0]['following'] + j['following']
+                if hasattr(j, 'img'):
+                    if alluser[0]['img'] == "https://d2bf187k2967hr.cloudfront.net/static_files/profile/profile_image.png":
+                        alluser[0]['img'] = j['img']
+                if hasattr(j, 'nickname'):
+                    if alluser[0]['nickname'] == "":
+                        alluser[0]['nickname'] = j['nickname']
+                if hasattr(j, 'Status_message'):        
+                    if alluser[0]['Status_message'] == "":
+                        alluser[0]['Status_message'] = j['Status_message']
                 #해당 id 의 댓글, 대댓글, 개시글, 
+            start = start  + 1
+        for j in alluser:
+            if start == 0:
+                #최상위 _id 만 살려놈
+                mainid = j['_id']
+            else:
+                user = {}
+                user['_id'], user['img'], user['nickname'], user['Status_message'] = \
+                alluser[0]['_id'], alluser[0]['img'], alluser[0]['nickname'], alluser[0]['Status_message']
+                #getdb.alluserget.set2(j['_id'], user)
             start = start  + 1
         #j for문 끝나고 중복제거해서 맨앞 id 업데이트
 
-    print(badge_ids)
     return '33' #str(data)  # artists[3]['followers']
 
 

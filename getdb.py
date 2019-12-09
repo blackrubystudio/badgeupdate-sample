@@ -142,13 +142,15 @@ class alluserget():
     def get(uid):
         alluserdata = list(db.users.find({'uid': uid}))
         return alluserdata
+
     def set(_id, o_id):
         me = ObjectId(_id)
         db.users.update({"_id": me}, {"$set": {"uid": "", "token": "", "fcmToken": ""}})
-        db.comments.update({"likes": ObjectId(_id)}, {'likes.$': ObjectId(o_id)}) 
-        db.users.update({"_id": me}, {"$set": {"uid": "", "token": "", "fcmToken": ""}})
-        db.users.update({"_id": me}, {"$set": {"uid": "", "token": "", "fcmToken": ""}})
-        db.users.update({"_id": me}, {"$set": {"uid": "", "token": "", "fcmToken": ""}})
+
+    def set2(_id, user):
+        me = ObjectId(_id)
+        db.posts.update({"user._id": me}, {"users": user})
+
 
 class testttt():
     def get(uid):

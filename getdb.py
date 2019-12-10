@@ -149,7 +149,27 @@ class alluserget():
 
     def set2(_id, user):
         me = ObjectId(_id)
-        db.posts.update({"user._id": me}, {"users": user})
+        db.posts.update_many({"user._id": me}, {"$set": {"user": user}})
+        db.comments.update_many({"user._id": me}, {"$set": {"user": user}})
+        # db.comments.update_many({"cocomments.user._id": me}, {"$set": {"user": user}})
+
+        db.schedules.update_many({"likes": {'$in': [me]}}, {"$push": {"likes": user['_id']}})
+        db.schedules.update_many({"likes": {'$in': [me]}}, {"$pull": {"likes": me}})
+        db.posts.update_many({"likes": {'$in': [me]}}, {"$push": {"likes": user['_id']}})
+        db.posts.update_many({"likes": {'$in': [me]}}, {"$pull": {"likes": me}})
+        db.comments.update_many({"likes": {'$in': [me]}}, {"$push": {"likes": user['_id']}})
+        db.comments.update_many({"likes": {'$in': [me]}}, {"$pull": {"likes": me}})
+
+        # db.schedules.update_many({"feeds.likes": {'$in': [me]}}, {"$push": {"feeds.likes": user['_id']}})
+        # db.schedules.update_many({"feeds.likes": {'$in': [me]}}, {"$pull": {"feeds.likes": me}})
+        # db.comments.update_many({"cocomments.likes": {'$in': [me]}}, {"$push": {"cocomments.likes": user['_id']}})
+        # db.comments.update_many({"cocomments.likes": {'$in': [me]}}, {"$pull": {"cocomments.likes": me}})
+
+        
+
+    def set3(_id, user):
+        me = ObjectId(_id)
+        db.users.update({"_id": me}, {'$set': {"badge_ids": user['badge_ids'], "likes": user['likes'], "following": user["following"], "img": user['img'], "nickname": user['nickname'], "Status_message": user['Status_message']}})
 
 
 class testttt():

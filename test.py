@@ -140,9 +140,10 @@ def test():
     #     print('호')
 
     tuser_aggr = getdb.tuserget.get()
-    #tuser_aggr = tuser_aggr[0]
-    
+    mainid = ""
     for i in tuser_aggr:
+        if i['_id'] != '105991496517031240076':
+            continue
         #print(i['_id'], i['count'])
         alluser = getdb.alluserget.get(i['_id'])
         start = 0
@@ -151,10 +152,21 @@ def test():
                 print(j['_id'])
                 #최상위 _id 만 살려놈
                 mainid = j['_id']
+                if 'following' not in j: 
+                    alluser[0]['following'] = []
+                if 'img' not in j: 
+                    alluser[0]['img'] = "https://d2bf187k2967hr.cloudfront.net/static_files/profile/profile_image.png"
+                if 'nickname' not in j: 
+                    alluser[0]['nickname'] = ""
+                if 'Status_message' not in j: 
+                    alluser[0]['Status_message'] = ""
+                if 'isSignUp' not in j:
+                    alluser[0]['isSignUp'] = True
             else:
+                print('delete')
                 print(j['_id'])
                 #uid, token, fcmtoken "" 값 채워넣기 
-                #getdb.alluserget.set(j['_id'], alluser[0]['_id'])
+                getdb.alluserget.set(j['_id'], alluser[0]['_id'])
                 if len(j['badge_ids']) != 0:
                     alluser[0]['badge_ids'] = alluser[0]['badge_ids'] + j['badge_ids']
                 if len(j['likes']['schedule_ids']) != 0:
@@ -167,30 +179,44 @@ def test():
                     alluser[0]['likes']['comment_ids'] = alluser[0]['likes']['comment_ids'] + j['likes']['comment_ids']
                 if len(j['likes']['cocomment_ids']) != 0:
                     alluser[0]['likes']['cocomment_ids'] = alluser[0]['likes']['cocomment_ids'] + j['likes']['cocomment_ids']
-                if hasattr(j, 'following'):
+                if 'following' in j:
                     if len(j['following']) != 0:
-                        alluser[0]['following'] = alluser[0]['following'] + j['following']
-                if hasattr(j, 'img'):
+                        alluser[0]['following'] = follow(alluser[0]['following'] + j['following'])
+                if 'img' in j: 
                     if alluser[0]['img'] == "https://d2bf187k2967hr.cloudfront.net/static_files/profile/profile_image.png":
                         alluser[0]['img'] = j['img']
-                if hasattr(j, 'nickname'):
+                if 'nickname' in j: 
                     if alluser[0]['nickname'] == "":
                         alluser[0]['nickname'] = j['nickname']
-                if hasattr(j, 'Status_message'):        
+                if 'Status_message' in j: 
                     if alluser[0]['Status_message'] == "":
                         alluser[0]['Status_message'] = j['Status_message']
                 #해당 id 의 댓글, 대댓글, 개시글, 
             start = start  + 1
+        start2 = 0
         for j in alluser:
-            if start == 0:
+            if start2 == 0:
                 #최상위 _id 만 살려놈
                 mainid = j['_id']
             else:
                 user = {}
-                user['_id'], user['img'], user['nickname'], user['Status_message'] = \
-                alluser[0]['_id'], alluser[0]['img'], alluser[0]['nickname'], alluser[0]['Status_message']
-                #getdb.alluserget.set2(j['_id'], user)
-            start = start  + 1
+                user['_id'], user['img'], user['nickname'], user['Status_message'] = alluser[0]['_id'], alluser[0]['img'], alluser[0]['nickname'], alluser[0]['Status_message']
+                print(j['_id'])
+                print(user['_id'], user['img'], user['nickname'], user['Status_message'])
+                getdb.alluserget.set2(j['_id'], user)
+            start2 = start2 + 1
+
+        alluser[0]['badge_ids'] = list(set(alluser[0]['badge_ids']))
+        alluser[0]['likes']['schedule_ids'] = list(set(alluser[0]['likes']['schedule_ids']))
+        alluser[0]['likes']['feed_ids'] = list(set(alluser[0]['likes']['feed_ids']))
+        alluser[0]['likes']['post_ids'] = list(set(alluser[0]['likes']['post_ids']))
+        alluser[0]['likes']['comment_ids'] = list(set(alluser[0]['likes']['comment_ids']))
+        alluser[0]['likes']['cocomment_ids'] = list(set(alluser[0]['likes']['cocomment_ids']))
+
+        getdb.alluserget.set3(mainid, alluser[0])
+        print('update')
+        print(mainid)
+
         #j for문 끝나고 중복제거해서 맨앞 id 업데이트
 
     return '33' #str(data)  # artists[3]['followers']
@@ -272,6 +298,16 @@ def alarm():
             notification.push_notification()   
         except:
             print(i, "번째 error")'''
+
+def follow(follows):
+    seen = set()
+    follow_list = []
+    for follow in follows:
+        t = tuple(follow.items())
+        if t not in seen:
+            seen.add(t)            
+            follow_list.append(follow)
+    return follow_list
 
 
 if __name__ == "__main__":

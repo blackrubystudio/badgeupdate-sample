@@ -151,7 +151,7 @@ class alluserget():
         me = ObjectId(_id)
         db.posts.update_many({"user._id": me}, {"$set": {"user": user}})
         db.comments.update_many({"user._id": me}, {"$set": {"user": user}})
-        # db.comments.update_many({"cocomments.user._id": me}, {"$set": {"user": user}})
+        db.comments.update_many({}, {"$set": {"cocomments.$[cocomment].user": user}}, array_filters=[{"cocomment.user._id": me}])
 
         db.schedules.update_many({"likes": {'$in': [me]}}, {"$push": {"likes": user['_id']}})
         db.schedules.update_many({"likes": {'$in': [me]}}, {"$pull": {"likes": me}})
@@ -160,10 +160,10 @@ class alluserget():
         db.comments.update_many({"likes": {'$in': [me]}}, {"$push": {"likes": user['_id']}})
         db.comments.update_many({"likes": {'$in': [me]}}, {"$pull": {"likes": me}})
 
-        # db.schedules.update_many({"feeds.likes": {'$in': [me]}}, {"$push": {"feeds.likes": user['_id']}})
-        # db.schedules.update_many({"feeds.likes": {'$in': [me]}}, {"$pull": {"feeds.likes": me}})
-        # db.comments.update_many({"cocomments.likes": {'$in': [me]}}, {"$push": {"cocomments.likes": user['_id']}})
-        # db.comments.update_many({"cocomments.likes": {'$in': [me]}}, {"$pull": {"cocomments.likes": me}})
+        db.schedules.update_many({}, {"$push": {"feeds.$[feed].likes": user['_id']}}, array_filters=[{"feed.likes": {'$in': [me]}}])
+        db.schedules.update_many({"feeds.likes": {'$in': [me]}}, {"$pull": {"feeds.$[].likes": me}})
+        db.comments.update_many({}, {"$push": {"cocomments.$[cocomment].likes": user['_id']}}, array_filters=[{"cocomment.likes": {'$in': [me]}}])
+        db.comments.update_many({"cocomments.likes": {'$in': [me]}}, {"$pull": {"cocomments.$[].likes": me}})
 
         
 
